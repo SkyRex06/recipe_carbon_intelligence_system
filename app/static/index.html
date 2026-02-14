@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Carbon Intelligence</title>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #F9FAFB; color: #111827; }
+    .container { max-width: 1000px; margin: auto; padding: 24px; }
+    .hero { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+    h1 { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input, select, button, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; }
+    button { background: #3B82F6; color: white; border: none; cursor: pointer; font-weight: 600; }
+    .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
+    .card { background: white; border-radius: 10px; padding: 14px; box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+    .low { color: #10B981; } .medium { color: #F59E0B; } .high { color: #EF4444; }
+    pre { white-space: pre-wrap; font-size: 12px; background: #111827; color: #e5e7eb; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>Calculate and optimize your menu's carbon footprint</h1>
+      <p>Enterprise workflow for recipe emissions, substitutions, and menu intelligence.</p>
+      <div class="grid">
+        <div>
+          <label>Recipe Title</label>
+          <input id="title" value="Beef Bolognese" />
+        </div>
+        <div>
+          <label>Servings</label>
+          <input id="servings" type="number" value="4" />
+        </div>
+        <div>
+          <label>Cooking Method</label>
+          <select id="method"><option>gas stove</option><option>electric stove</option><option>gas oven</option><option>electric oven</option><option>pressure cooker</option></select>
+        </div>
+        <div>
+          <label>Cook Time (minutes)</label>
+          <input id="time" type="number" value="45" />
+        </div>
+      </div>
+      <label>Ingredients (name,quantity,unit per line)</label>
+      <textarea id="ingredients" rows="6">ground beef,500,g
+parmesan,100,g
+tomato,400,g
+onion,150,g</textarea>
+      <div class="grid" style="margin-top:12px">
+        <button onclick="calculate()">Calculate Recipe</button>
+        <button onclick="optimize()">Optimize Recipe (20/40/60)</button>
+      </div>
+      <div class="cards" id="summary"></div>
+      <pre id="output">Run a calculation to see API output…</pre>
+    </div>
+  </div>
+  <script>
+    function payload() {
+      const ingredients = document.getElementById('ingredients').value.split('\n').filter(Boolean).map(line => {
+        const [name, quantity, unit] = line.split(',');
+        return { name: name.trim(), quantity: Number(quantity), unit: unit.trim() };
+      });
+      return {
+        title: document.getElementById('title').value,
+        servings: Number(document.getElementById('servings').value),
+        cooking_method: document.getElementById('method').value,
+        cooking_time_minutes: Number(document.getElementById('time').value),
+        ingredients
+      };
+    }
+
+    function renderSummary(data) {
+      const intensity = data.carbon_intensity.toLowerCase();
+      document.getElementById('summary').innerHTML = `
+        <div class="card"><strong>Total</strong><div>${data.total_carbon_kg} kg CO2e</div></div>
+        <div class="card"><strong>Per serving</strong><div>${data.carbon_per_serving_kg} kg CO2e</div></div>
+        <div class="card"><strong>Intensity</strong><div class="${intensity}">${data.carbon_intensity}</div></div>
+      `;
+    }
+
+    async function calculate() {
+      const res = await fetch('/api/calculate', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload()) });
+      const data = await res.json();
+      renderSummary(data);
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function optimize() {
+      const res = await fetch('/api/optimize', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload()) });
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
