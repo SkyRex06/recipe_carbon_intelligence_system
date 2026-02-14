@@ -17,36 +17,16 @@ A hackathon-ready enterprise web app for carbon accounting and optimization of r
 - Lightweight static HTML/JS frontend
 - Pytest for service-level tests
 
-## Quick start (recommended)
+## Run locally
 
 ```bash
-./scripts/run_local.sh
-```
-
-This script will:
-1. create `.venv` if needed,
-2. install dependencies from `requirements.txt`,
-3. start the API server at `http://127.0.0.1:8000`.
-
-## Manual run
-
-```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
 Open `http://127.0.0.1:8000`.
-
-## Makefile shortcuts
-
-```bash
-make install   # create venv + install deps
-make run       # run FastAPI app
-make test      # run pytest
-make static    # serve static demo only (no API)
-```
 
 ## API endpoints
 
