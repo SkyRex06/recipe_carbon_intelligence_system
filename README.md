@@ -36,6 +36,16 @@ Open `http://127.0.0.1:8000`.
 - `POST /api/menu` – menu-level dashboard summary
 - `POST /api/reports/compliance` – compliance-ready summary payload
 
+## Troubleshooting
+
+- If installation fails due network/proxy restrictions, run in an environment with access to PyPI or configure pip proxy settings.
+- To preview just the static interface while backend dependencies are unavailable:
+
+```bash
+make static
+# then open http://127.0.0.1:8001
+```
+
 ## Notes
 
 - Includes a built-in carbon coefficient database for **70+ ingredient keys** and cooking methods.
